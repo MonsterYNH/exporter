@@ -1,0 +1,63 @@
+version: '3'
+services: 
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - 3000:3000
+    volumes:
+      - ./data/grafana:/var/lib/grafana
+    networks:
+      monitor:
+        ipv4_address: 172.11.0.2
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - 9090:9090
+    volumes:
+      - ./data/prometheus/config:/etc/prometheus
+      - /etc/localtime:/etc/localtime
+    networks: 
+      monitor:
+        ipv4_address: 172.11.0.3
+  consul:
+    image: consul:latest
+    ports:
+      - 8500:8500
+    networks:
+      monitor:
+        ipv4_address: 172.11.0.4
+  exporter1:
+    image: exporter:latest
+    hostname: exporter1
+    build:
+      context: .
+    command: /app/metrics -registrt_address 172.11.0.4:8500
+    networks: 
+      monitor:
+        ipv4_address: 172.11.0.5
+  exporter2:
+    image: exporter:latest
+    hostname: exporter2
+    build:
+      context: .
+    command: /app/metrics -registrt_address 172.11.0.4:8500
+    networks: 
+      monitor:
+        ipv4_address: 172.11.0.6
+  exporter3:
+    image: exporter:latest
+    hostname: exporter3
+    build:
+      context: .
+    command: /app/metrics -registrt_address 172.11.0.4:8500
+    networks: 
+      monitor:
+        ipv4_address: 172.11.0.7
+networks:
+  monitor:
+    ipam:
+      config:
+      - subnet: 172.11.0.0/16
+
+
+    
